@@ -9,13 +9,13 @@ Database: PostgreSQL database on Amazon RDS
 
 ## AWS Resources
 
-S3 Bucket: s3://[bucket-name] - Hosts static website content
-EC2 Instance: [EC2-public-IP] - Runs the application server
-RDS Database: [RDS-endpoint] - PostgreSQL database instance
+S3 Bucket: s3://noila1t - Hosts static website content
+EC2 Instance: webapp_noila - Runs the application server
+RDS Database: db-noila.clyucs4e44b4.ap-northeast-2.rds.amazonaws.com - PostgreSQL database instance
 
 ## How to Run the Application
 1. Access the Web Application
-The application can be accessed at: http://[S3-website-endpoint]
+The application can be accessed at: http://noila1t.s3-website.ap-northeast-2.amazonaws.com
 2. Using the Application
 
 ## Browse Data: The homepage displays data from the Kaggle dataset
@@ -32,15 +32,15 @@ DELETE /api/data/{id}: Deletes a record from the database
 Database Setup (Amazon RDS)
 
 Created a PostgreSQL database instance on Amazon RDS
-Database name: db_[first_name]
-Table name: tbl_[first_name]_[dataset_name]
+Database name: db_noila
+Table name: tbl_noila_supermarket_sales
 Imported dataset from Kaggle into the RDS database
 
 ## Static Website (Amazon S3)
 
 Created S3 bucket configured for static website hosting
 Uploaded HTML/CSS/JS files to the bucket
-Main HTML file: index_[first_name].html
+Main HTML file: index_noila.html
 Set bucket policy for public access
 
 ## Application Server (Amazon EC2)
@@ -48,7 +48,7 @@ Set bucket policy for public access
 Launched Ubuntu EC2 instance
 Installed necessary dependencies (Python/Flask)
 Deployed backend application connecting to RDS database
-Project folder: webapp_[first_name]
+Project folder: webapp_noila
 
 ## Technologies Used
 
@@ -58,13 +58,13 @@ Database: PostgreSQL
 AWS Services: EC2, RDS, S3
 
 ## Project Structure
-webapp_[first_name]/
+webapp_noila/
 ├── app.py                 # Flask application
 ├── requirements.txt       # Python dependencies
 ├── static/                # Static files (copied to S3)
 │   ├── css/
 │   ├── js/
-│   └── index_[first_name].html
+│   └── index_noila.html
 ├── templates/             # Flask templates
 └── scripts/               # Database import scripts
 Development and Deployment Notes
