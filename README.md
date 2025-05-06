@@ -1,76 +1,75 @@
-Full Web Application Deployment on AWS – Final Project
-By: [Your Name]
-Overview
-This project demonstrates the deployment of a full-stack web application using Amazon Web Services (AWS). The application connects a static frontend hosted on Amazon S3 with a backend server running on Amazon EC2 that interacts with a PostgreSQL database hosted on Amazon RDS.
+Web Application Deployment on AWS
+This project demonstrates a complete web application deployment using AWS services, including EC2 for compute, RDS for database management, and S3 for static content hosting.
+Project Overview
+This application provides a user interface to interact with a dataset from Kaggle, allowing users to view, add, and delete data through a web interface. The architecture employs a three-tier design:
 
-The application supports:
+Frontend: Static HTML/CSS/JS files hosted on Amazon S3
+Backend: Application server running on Amazon EC2
+Database: PostgreSQL database on Amazon RDS
 
-Displaying static HTML content
+AWS Resources
 
-Performing Add and Delete operations
-
-Real-time interaction with the PostgreSQL database
-
-Tech Stack
-Frontend: HTML, CSS, JavaScript (hosted on Amazon S3)
-
-Backend: Python (Flask)
-
-Database: PostgreSQL (Amazon RDS)
-
-Hosting/Compute: Amazon EC2 (Ubuntu)
-
-Project Components
-Amazon RDS - PostgreSQL
-
-Database name: db_<your_first_name>
-
-Table name: tbl_<your_first_name>_<dataset_name>
-
-Dataset imported from Kaggle and uploaded using DBeaver or psql
-
-Amazon S3 - Static Website
-
-S3 bucket hosts index_<your_first_name>.html
-
-Public access configured via S3 bucket policy
-
-UI includes "Add" and "Delete" buttons linked to backend
-
-Amazon EC2 - Backend App
-
-Hosted Flask application (app.py)
-
-Connected to RDS using psycopg2
-
-Handles /add and /delete requests
+S3 Bucket: s3://[bucket-name] - Hosts static website content
+EC2 Instance: [EC2-public-IP] - Runs the application server
+RDS Database: [RDS-endpoint] - PostgreSQL database instance
 
 How to Run the Application
-Frontend (Static Website)
-Open the link below in a browser:
-S3 Static Website Link
+1. Access the Web Application
+The application can be accessed at: http://[S3-website-endpoint]
+2. Using the Application
 
-Backend (Flask API)
-Access the backend hosted on EC2:
-EC2 Public IP or Domain
+Browse Data: The homepage displays data from the Kaggle dataset
+Add Data: Click the "Add" button to insert new records into the database
+Delete Data: Click the "Delete" button to remove records from the database
 
-Database (Amazon RDS)
-PostgreSQL running on RDS is not publicly browsable but is accessible by the EC2 instance.
+3. Backend API Endpoints
 
-Add/Delete Functionality
-Add Button: Sends data to EC2 backend → Inserts into RDS table
+GET /api/data: Retrieves all records from the database
+POST /api/data: Adds a new record to the database
+DELETE /api/data/{id}: Deletes a record from the database
 
-Delete Button: Sends request to EC2 backend → Deletes from RDS table
+Project Setup
+Database Setup (Amazon RDS)
 
-All changes are reflected live in the database.
+Created a PostgreSQL database instance on Amazon RDS
+Database name: db_[first_name]
+Table name: tbl_[first_name]_[dataset_name]
+Imported dataset from Kaggle into the RDS database
 
-Links
-GitHub Repo: GitHub Repository Link
+Static Website (Amazon S3)
 
-S3 Static Hosting: Static Website URL
+Created S3 bucket configured for static website hosting
+Uploaded HTML/CSS/JS files to the bucket
+Main HTML file: index_[first_name].html
+Set bucket policy for public access
 
-EC2 Backend App: EC2 Public IP
+Application Server (Amazon EC2)
 
-Deployment Folder Name
-Project folder is named:
-webapp_<your_first_name>
+Launched Ubuntu EC2 instance
+Installed necessary dependencies (Python/Flask)
+Deployed backend application connecting to RDS database
+Project folder: webapp_[first_name]
+
+Technologies Used
+
+Frontend: HTML, CSS, JavaScript
+Backend: Python, Flask
+Database: PostgreSQL
+AWS Services: EC2, RDS, S3
+
+Project Structure
+webapp_[first_name]/
+├── app.py                 # Flask application
+├── requirements.txt       # Python dependencies
+├── static/                # Static files (copied to S3)
+│   ├── css/
+│   ├── js/
+│   └── index_[first_name].html
+├── templates/             # Flask templates
+└── scripts/               # Database import scripts
+Development and Deployment Notes
+
+Database connection string is configured in the application
+Application automatically connects to RDS on startup
+Static files are served directly from S3
+EC2 instance hosts only the API endpoints
