@@ -1,0 +1,934 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberpunk Supermarket Sales Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff2a6d;
+            --neon-yellow: #ffeb3b;
+            --dark-bg: #0a0a1e;
+            --darker-bg: #05051a;
+            --grid-bg: rgba(0, 243, 255, 0.03);
+            --panel-bg: rgba(10, 10, 40, 0.8);
+            --border-glow: 0 0 10px var(--neon-blue);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--dark-bg);
+            background-image:
+                linear-gradient(rgba(10, 10, 30, 0.9), rgba(10, 10, 30, 0.9)),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 243, 255, 0.05) 2px, rgba(0, 243, 255, 0.05) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 243, 255, 0.05) 2px, rgba(0, 243, 255, 0.05) 4px);
+            color: #ffffff;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .neon-border {
+            border: 1px solid var(--neon-blue);
+            box-shadow: var(--border-glow);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .neon-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+            z-index: 1;
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1 {
+            color: var(--neon-blue);
+            text-align: center;
+            width: 100%;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px rgba(0, 243, 255, 0.5);
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            color: var(--neon-yellow);
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            text-shadow: 0 0 5px var(--neon-yellow);
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            box-shadow: var(--border-glow);
+            border-radius: 8px;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                linear-gradient(45deg, transparent 49%, var(--neon-blue) 49%, var(--neon-blue) 51%, transparent 51%),
+                linear-gradient(-45deg, transparent 49%, var(--neon-blue) 49%, var(--neon-blue) 51%, transparent 51%);
+            background-size: 60px 60px;
+            background-position: 0 0;
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        /* Cyber Grid */
+        .cyber-grid {
+            width: 100%;
+            margin-top: 20px;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-item {
+            background-color: rgba(5, 5, 26, 0.9);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);
+            border-radius: 5px;
+            padding: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.6);
+        }
+
+        .grid-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-blue));
+        }
+
+        .item-header {
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            font-weight: bold;
+            color: var(--neon-yellow);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .grid-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 4px 0;
+        }
+
+        .data-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .data-value {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .grid-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--neon-yellow);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 5px rgba(0, 243, 255, 0.3) inset;
+            border-radius: 4px;
+            box-sizing: border-box;
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 42, 109, 0.5);
+        }
+
+        button {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.7);
+            transform: translateY(-2px);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-yellow), var(--neon-blue));
+            background-size: 200% 200%;
+            animation: glowingBg 3s linear infinite;
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        button:hover::after {
+            opacity: 1;
+        }
+
+        @keyframes glowingBg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #ff2a6d, #ff0f27);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Messages and loading styles */
+        #message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+            font-family: 'Share Tech Mono', monospace;
+            text-align: center;
+            position: relative;
+        }
+
+        .success {
+            background-color: rgba(0, 243, 255, 0.1);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        .error {
+            background-color: rgba(255, 42, 109, 0.1);
+            color: var(--neon-pink);
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 10px rgba(255, 42, 109, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .spinner:before, .spinner:after {
+            content: '';
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: var(--neon-blue);
+            opacity: 0.6;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: sk-bounce 2.0s infinite ease-in-out;
+        }
+
+        .spinner:after {
+            background-color: var(--neon-pink);
+            animation-delay: -1.0s;
+            opacity: 0.6;
+        }
+
+        @keyframes sk-bounce {
+            0%, 100% { transform: scale(0); }
+            50% { transform: scale(1.0); }
+        }
+
+        .loading p {
+            margin-top: 10px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Scanlines effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.05) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.15;
+        }
+
+        /* Control panel */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(10, 10, 30, 0.7);
+            border: 1px solid var(--neon-blue);
+            border-radius: 4px;
+        }
+
+        .control-panel h2 {
+            margin-bottom: 0;
+        }
+
+        /* View toggle */
+        .view-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            padding: 8px 15px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .view-btn.active {
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        /* Table view (traditional) */
+        .table-view {
+            display: none;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: rgba(5, 5, 26, 0.8);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+        }
+
+        th {
+            background-color: rgba(0, 243, 255, 0.1);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(10, 10, 40, 0.4);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 243, 255, 0.1);
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .status-online {
+            background-color: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .status-offline {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-online .status-dot {
+            background-color: #00ff00;
+            box-shadow: 0 0 8px #00ff00;
+        }
+
+        .status-offline .status-dot {
+            background-color: #ff0000;
+            box-shadow: 0 0 8px #ff0000;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cyber-grid {
+                grid-template-columns: 1fr;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cyberpunk Market // Sales Terminal</h1>
+
+        <div id="message"></div>
+
+        <div class="section">
+            <h2>:: New Record Upload ::</h2>
+            <form id="addForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="invoiceId">Invoice ID</label>
+                        <input type="text" id="invoiceId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="text" id="date" placeholder="MM/DD/YYYY" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerType">Customer Type</label>
+                        <select id="customerType" required>
+                            <option value="Member">Member</option>
+                            <option value="Normal">Normal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">Product Category</label>
+                        <input type="text" id="productCategory" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unitPrice">Unit Price</label>
+                        <input type="number" step="0.01" id="unitPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="totalSales">Total Sales</label>
+                        <input type="number" step="0.01" id="totalSales" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method</label>
+                        <select id="paymentMethod" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit card">Credit card</option>
+                            <option value="Ewallet">Ewallet</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">Upload Record</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <div class="control-panel">
+                <h2>:: Sales Data Vault ::</h2>
+                <button id="refreshBtn">Sync Data</button>
+            </div>
+
+            <div class="view-options">
+                <button class="view-btn active" id="gridViewBtn">Grid View</button>
+                <button class="view-btn" id="tableViewBtn">Table View</button>
+            </div>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Syncing Data...</p>
+            </div>
+
+            <!-- Grid View (Card Style) -->
+            <div id="gridContainer" class="cyber-grid">
+                <!-- Grid items will be inserted here -->
+            </div>
+
+            <!-- Table View (Traditional) -->
+            <div id="tableContainer" class="table-view">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Invoice ID</th>
+                            <th>Date</th>
+                            <th>Customer Type</th>
+                            <th>Gender</th>
+                            <th>Product Category</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th>Total Sales</th>
+                            <th>Payment Method</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        <!-- Data will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status indicator -->
+    <div id="statusIndicator" class="status-indicator status-offline">
+        <span class="status-dot"></span>
+        <span id="statusText">OFFLINE</span>
+    </div>
+
+    <script>
+        // API endpoint URL
+        const API_URL = 'http://13.125.191.198:5000/api';
+
+        // DOM Elements
+        const dataBody = document.getElementById('dataBody');
+        const gridContainer = document.getElementById('gridContainer');
+        const tableContainer = document.getElementById('tableContainer');
+        const addForm = document.getElementById('addForm');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const messageEl = document.getElementById('message');
+        const loadingEl = document.querySelector('.loading');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const tableViewBtn = document.getElementById('tableViewBtn');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+
+        // Check API connection
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${API_URL}/data`, {
+                    method: 'HEAD',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    statusIndicator.className = 'status-indicator status-online';
+                    statusText.textContent = 'ONLINE';
+                    return true;
+                } else {
+                    throw new Error('API connection failed');
+                }
+            } catch (error) {
+                statusIndicator.className = 'status-indicator status-offline';
+                statusText.textContent = 'OFFLINE';
+                return false;
+            }
+        }
+
+        // Check connection initially and every 30 seconds
+        checkConnection();
+        setInterval(checkConnection, 30000);
+
+        // View management
+        gridViewBtn.addEventListener('click', () => {
+            gridViewBtn.classList.add('active');
+            tableViewBtn.classList.remove('active');
+            gridContainer.style.display = 'grid';
+            tableContainer.style.display = 'none';
+        });
+
+        tableViewBtn.addEventListener('click', () => {
+            tableViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            tableContainer.style.display = 'block';
+            gridContainer.style.display = 'none';
+        });
+
+        // Show message function
+        function showMessage(text, isError = false) {
+            messageEl.textContent = text;
+            messageEl.className = isError ? 'error' : 'success';
+            messageEl.style.display = 'block';
+
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+        // Fetch data function
+        async function fetchData() {
+            try {
+                loadingEl.style.display = 'block';
+                const response = await fetch(`${API_URL}/data`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
+                const data = await response.json();
+                renderData(data);
+                showMessage('Data synced successfully!');
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showMessage(`Error: ${error.message}`, true);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Render data function - handles both views
+        function renderData(data) {
+            // Clear both containers
+            dataBody.innerHTML = '';
+            gridContainer.innerHTML = '';
+
+            if (data.length === 0) {
+                dataBody.innerHTML = '<tr><td colspan="10" style="text-align:center">No records found</td></tr>';
+                gridContainer.innerHTML = '<div class="grid-item"><p style="text-align:center">No records found</p></div>';
+                return;
+            }
+
+            // Process each data item
+            data.forEach(item => {
+                // For table view
+                const row = document.createElement('tr');
+                const idField = item.id || item['Invoice ID'];
+
+                row.innerHTML = `
+                    <td>${item['Invoice ID'] || ''}</td>
+                    <td>${item['Date'] || ''}</td>
+                    <td>${item['Customer Type'] || ''}</td>
+                    <td>${item['gender'] || ''}</td>
+                    <td>${item['Product Category'] || ''}</td>
+                    <td>${item['Unit Price'] || ''}</td>
+                    <td>${item['quantity'] || ''}</td>
+                    <td>${item['Total Sales'] || ''}</td>
+                    <td>${item['Payment Method'] || ''}</td>
+                    <td>
+                        <button class="delete-btn" data-id="${idField}">Delete</button>
+                    </td>
+                `;
+
+                dataBody.appendChild(row);
+
+                // For grid view - create a card for each item
+                const card = document.createElement('div');
+                card.className = 'grid-item';
+
+                card.innerHTML = `
+                    <div class="item-header">${item['Invoice ID'] || 'N/A'}</div>
+                    <div class="grid-content">
+                        <div class="data-row">
+                            <span class="data-label">Date:</span>
+                            <span class="data-value">${item['Date'] || 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Category:</span>
+                            <span class="data-value">${item['Product Category'] || 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Customer:</span>
+                            <span class="data-value">${item['Customer Type'] || 'N/A'} / ${item['gender'] || 'N/A'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Price:</span>
+                            <span class="data-value">¥${item['Unit Price'] || '0.00'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Quantity:</span>
+                            <span class="data-value">${item['quantity'] || '0'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Total:</span>
+                            <span class="data-value">¥${item['Total Sales'] || '0.00'}</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Payment:</span>
+                            <span class="data-value">${item['Payment Method'] || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <div class="grid-controls">
+                        <button class="delete-btn" data-id="${idField}">Delete</button>
+                    </div>
+                `;
+
+                gridContainer.appendChild(card);
+            });
+
+            // Add event listeners for delete buttons - for both views
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', () => deleteRecord(btn.dataset.id));
+            });
+        }
+
+        // Add record function
+        async function addRecord(formData) {
+            try {
+                loadingEl.style.display = 'block';
+                console.log('Sending data:', formData);
+
+                const response = await fetch(`${API_URL}/data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData),
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+
+                // Log response status for debugging
+                console.log('Response status:', response.status);
+
+                // Try to parse the response body regardless of status
+                let responseData;
+                try {
+                    responseData = await response.json();
+                    console.log('Response data:', responseData);
+                } catch (parseError) {
+                    console.error('Error parsing response:', parseError);
+                    responseData = { error: 'Could not parse server response' };
+                }
+
+                if (!response.ok) {
+                    throw new Error(responseData.error || responseData.details || 'Failed to add record');
+                }
+
+                showMessage('Record uploaded successfully!');
+                addForm.reset();
+                fetchData(); // Refresh the data
+            } catch (error) {
+                console.error('Error adding record:', error);
+                showMessage(`Error: ${error.message}`, true);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Delete record function
+        async function deleteRecord(id) {
+            if (!confirm('>>CONFIRM<< Delete this record from database?')) {
+                return;
+            }
+
+            try {
+                loadingEl.style.display = 'block';
+                const response = await fetch(`${API_URL}/data/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to delete record');
+                }
+
+                showMessage('Record deleted successfully!');
+                fetchData(); // Refresh the data
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                showMessage(`Error: ${error.message}`, true);
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchData();
+            // Start with grid view active
+            gridContainer.style.display = 'grid';
+            tableContainer.style.display = 'none';
+        });
+
+        refreshBtn.addEventListener('click', fetchData);
+
+        addForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const formData = {
+                'Invoice ID': document.getElementById('invoiceId').value,
+                'Date': document.getElementById('date').value,
+                'Customer Type': document.getElementById('customerType').value,
+                'gender': document.getElementById('gender').value,
+                'Product Category': document.getElementById('productCategory').value,
+                'Unit Price': parseFloat(document.getElementById('unitPrice').value),
+                'quantity': parseInt(document.getElementById('quantity').value),
+                'Total Sales': parseFloat(document.getElementById('totalSales').value),
+                'Payment Method': document.getElementById('paymentMethod').value
+            };
+
+            addRecord(formData);
+        });
+
+        // Auto-calculate total sales
+        document.getElementById('unitPrice').addEventListener('input', updateTotal);
+        document.getElementById('quantity').addEventListener('input', updateTotal);
+
+        function updateTotal() {
+            const unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 0;
+            const total = unitPrice * quantity;
+            document.getElementById('totalSales').value = total.toFixed(2);
+        }
+
+        // Add some cyberpunk atmospheric effects
+        function addRandomGlitch() {
+            const elements = document.querySelectorAll('.grid-item, button, h1, h2');
+            const randomElement = elements[Math.floor(Math.random() * elements.length)];
+
+            if (randomElement) {
+                randomElement.style.transform = 'translateX(2px)';
+                randomElement.style.opacity = '0.8';
+
+                setTimeout(() => {
+                    randomElement.style.transform = '';
+                    randomElement.style.opacity = '';
+                }, 150);
+            }
+
+            setTimeout(addRandomGlitch, Math.random() * 10000 + 5000);
+        }
+
+        // Start glitch effect after everything loads
+        setTimeout(addRandomGlitch, 3000);
+    </script>
+</body>
+</html>
