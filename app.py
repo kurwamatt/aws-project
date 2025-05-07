@@ -15,7 +15,7 @@ DB_CONFIG = {
     'host': 'db-noila.clyucs4e44b4.ap-northeast-2.rds.amazonaws.com',
     'database': 'db_noila',
     'user': 'postgres',
-    'password': 'postgres2',
+    'password': 'postgres',
     'port': '5432'
 }
 
